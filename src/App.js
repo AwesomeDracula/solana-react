@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import "./App.css";
 import {Connection, PublicKey, clusterApiUrl} from "@solana/web3.js";
 import {Program, Provider, web3} from "@project-serum/anchor";
+import idl from "./minions.json"
 import kp from './keypair.json'
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
@@ -15,10 +16,11 @@ const secret = new Uint8Array(arr)
 const baseAccount = web3.Keypair.fromSecretKey(secret)
 
 // This is the address of your solana program, if you forgot, just run solana address -k target/deploy/myepicproject-keypair.json
-const programID = new PublicKey("KFXHaFpshiQatALBvdZNFaBeSnnD8bU7fP5tvxQFUL3");
+const programID = new PublicKey(idl.metadata.address);
 
 // Set our network to devnet.
 const network = clusterApiUrl("devnet");
+// const network = "http://127.0.0.1:8899";
 
 // Controls how we want to acknowledge when a transaction is "done".
 const opts = {
@@ -170,8 +172,8 @@ const App = () => {
   const getProgram = async () => {
     console.log("Getting program...", getProvider());
     // Get metadata about your solana program
-    const idl = await Program.fetchIdl(programID, getProvider());
-    console.log(idl, 'solana');
+    // const idl = await Program.fetchIdl(programID, getProvider());
+    // console.log(idl, 'solana');
     // Create a program that you can call
     return new Program(idl, programID, getProvider());
   };
@@ -197,7 +199,7 @@ const App = () => {
       const program = await getProgram();
       
       console.log("ping")
-      await program.rpc.startStuffOff({
+      await program.rpc.initialize({
         accounts: {
           baseAccount: baseAccount.publicKey,
           user: provider.wallet.publicKey,
